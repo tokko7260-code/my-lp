@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="日々の仕事をシンプルにする架空のサービス、SIMPLEの紹介ページです。">
+  <title>SIMPLE | 毎日に、もっと余白を。</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b49dd'/%3E%3Cpath d='M22 10H13a4 4 0 000 8h6a2 2 0 010 4H10' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+  <style>
+    :root { color-scheme: light; --ink: #17213a; --muted: #586176; --blue: #2b49dd; --line: #dce1ee; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; color: var(--ink); background: #fff; line-height: 1.8; }
+    a { color: inherit; text-underline-offset: 5px; }
+    a:focus-visible { outline: 3px solid #d17800; outline-offset: 6px; }
+    .container { width: min(1080px, calc(100% - 48px)); margin-inline: auto; }
+    .header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 24px; border-bottom: 1px solid var(--line); }
+    .logo { font-size: 1.4rem; font-weight: 800; letter-spacing: .1em; text-decoration: none; }
+    .header-link { font-size: .875rem; font-weight: 700; }
+    .hero { padding-block: 100px 108px; }
+    .eyebrow { margin: 0 0 24px; color: var(--blue); font-size: .875rem; font-weight: 700; letter-spacing: .15em; }
+    h1 { margin: 0; font-size: clamp(2.6rem, 6.5vw, 4.8rem); line-height: 1.35; letter-spacing: -.04em; }
+    h1 span { color: var(--blue); }
+    .lead { max-width: 600px; margin: 28px 0 32px; color: var(--muted); font-size: 1.0625rem; }
+    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 56px; padding: 15px 30px; border-radius: 8px; background: var(--blue); color: #fff; font-weight: 700; text-decoration: none; transition: background .2s, transform .2s; }
+    .button:hover { background: #2037ac; transform: translateY(-2px); }
+    .features { padding-block: 72px 84px; background: #f4f6fc; }
+    .section-label { margin: 0 0 8px; color: var(--blue); font-size: .875rem; letter-spacing: .14em; font-weight: 700; }
+    h2 { margin: 0; font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1.5; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 40px; }
+    .feature { border-top: 1px solid #bac5e8; padding-top: 24px; }
+    .number { color: var(--blue); font-size: .875rem; font-weight: 700; }
+    h3 { font-size: 1.25rem; margin: 16px 0 12px; }
+    .feature p { margin: 0; color: var(--muted); }
+    .contact { margin-block: 80px; padding: 48px; border: 1px solid var(--line); border-radius: 16px; display: flex; align-items: center; justify-content: space-between; gap: 32px; }
+    .contact p { margin: 16px 0 0; color: var(--muted); }
+    .contact .button { flex-shrink: 0; }
+    .note { font-size: .875rem; }
+    footer { border-top: 1px solid var(--line); padding-block: 24px; color: var(--muted); font-size: .875rem; }
+    footer .container { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    @media (max-width: 700px) {
+      .container { width: calc(100% - 40px); }
+      .header { padding-block: 20px; gap: 16px; }
+      .hero { padding-block: 64px 72px; }
+      .lead { font-size: 1rem; }
+      .features { padding-block: 56px; }
+      .grid { grid-template-columns: 1fr; gap: 28px; margin-top: 32px; }
+      .contact { margin-block: 48px; padding: 28px 24px; flex-direction: column; align-items: stretch; }
+      .button { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .button { transition: none; }
+      .button:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header container">
+    <a class="logo" href="#top" aria-label="SIMPLE トップへ">SIMPLE.</a>
+    <a class="header-link" href="#contact">お問い合わせ</a>
+  </header>
+  <main id="top">
+    <section class="hero container" aria-labelledby="hero-title">
+      <p class="eyebrow">LESS WORK, MORE POSSIBILITIES</p>
+      <h1 id="hero-title">毎日に、<br><span>もっと余白を。</span></h1>
+      <p class="lead">忙しい日々の作業を、もっとシンプルに。<br>SIMPLEは、仕事の整理とチームの共有をひとつにまとめ、本当に大切なことに集中できる時間をつくります。</p>
+      <a class="button" href="#contact">まずは相談してみる <span aria-hidden="true">&nbsp; →</span></a>
+    </section>
+    <section class="features" aria-labelledby="features-title">
+      <div class="container">
+        <p class="section-label">FEATURES</p>
+        <h2 id="features-title">シンプルだから、続けられる。</h2>
+        <div class="grid">
+          <article class="feature">
+            <span class="number">01 / EASY</span>
+            <h3>迷わず、すぐに使える</h3>
+            <p>必要な機能を、わかりやすく。初めてでも操作に迷わず、日々の仕事に取り入れられます。</p>
+          </article>
+          <article class="feature">
+            <span class="number">02 / ORGANIZE</span>
+            <h3>情報を、ひとつの場所に</h3>
+            <p>タスクもメモもまとめて管理。あちこち探す手間を減らし、次にやることが明確になります。</p>
+          </article>
+          <article class="feature">
+            <span class="number">03 / TEAMWORK</span>
+            <h3>チームで、スムーズに</h3>
+            <p>進み具合やアイデアを手軽に共有。離れていても、お互いの状況を確認しながら進められます。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section class="contact container" id="contact" aria-labelledby="contact-title">
+      <div>
+        <p class="section-label">CONTACT</p>
+        <h2 id="contact-title">はじめの一歩を、一緒に。</h2>
+        <p>サービスについてのご質問やご相談をお聞かせください。</p>
+        <!-- 公開時には、下記リンクを実際の問い合わせ先に変更してください。 -->
+        <p class="note">※ デモページです。お問い合わせ先はダミーです。</p>
+      </div>
+      <a class="button" href="mailto:hello@example.com">メールで問い合わせる</a>
+    </section>
+  </main>
+  <footer><div class="container"><span class="logo">SIMPLE.</span><span>© 2026 SIMPLE. Demo landing page.</span></div></footer>
+</body>
+</html>
