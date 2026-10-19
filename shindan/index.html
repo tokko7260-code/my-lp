@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="迷子タイプ診断｜絵本でおうち英語">
+<meta name="description" content="質問に答えると、わが家のおうち英語の「迷子タイプ」が分かります。">
+<title>迷子タイプ診断</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* layout: phone-first card, one question per screen, then the result sheet */
+:root{--bg:#f3ece6;--paper:#fffdfb;--ink:#4a3f3a;--soft:#8f7f76;--rose:#c25d68;--blush:#f8e4e2;--gold:#c9a24f;--cream:#fff5dc;--line:#ead6d2;
+--disp:'Shippori Mincho','Noto Serif CJK JP',serif;--body:'Zen Kaku Gothic New','Noto Sans CJK JP',sans-serif;color-scheme:light}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.7;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--paper);border-radius:18px;padding:22px 20px;display:flex;flex-direction:column;gap:14px}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:.8rem;color:var(--soft)}
+.bar{height:6px;background:var(--blush);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--rose);transition:width .3s}
+.sec{font-size:.78rem;letter-spacing:.08em;color:var(--gold);font-weight:700}
+h1,h2{font-family:var(--disp);margin:0;text-wrap:balance}
+h1{font-size:1.6rem;color:var(--rose)}
+h2{font-size:1.2rem;line-height:1.5}
+.note{font-size:.85rem;color:var(--soft);margin:-6px 0 0}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{font:inherit;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;color:var(--ink);line-height:1.5}
+.opt[aria-pressed=true]{border-color:var(--rose);background:var(--blush);font-weight:700}
+.opt:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.grid{display:flex;flex-direction:column;gap:10px}
+.grid label{display:flex;flex-direction:column;gap:4px;font-size:.92rem;font-weight:500}
+select,input,textarea{font:inherit;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;color:var(--ink);width:100%}
+textarea{min-height:90px}
+.nav{display:flex;gap:10px}
+.btn{font:inherit;font-weight:700;border:0;border-radius:999px;padding:12px 18px;cursor:pointer;flex:1}
+.btn.go{background:var(--rose);color:#fff}.btn.go:disabled{opacity:.4;cursor:default}
+.btn.back{background:transparent;color:var(--soft);flex:0 0 auto}
+.lead{font-weight:700}
+ul.aru{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+ul.aru li{background:var(--blush);border-radius:10px;padding:8px 12px;font-size:.9rem}
+ul.aru li::before{content:"✔ ";color:var(--rose);font-weight:700}
+h3{font-family:var(--disp);font-size:1.02rem;margin:4px 0 -6px;color:#7a5a3e;border-left:4px solid var(--gold);padding-left:10px}
+.card p{margin:0}
+b{color:var(--rose)}
+.chance{background:var(--cream);border:1.5px dashed var(--gold);border-radius:10px;padding:12px 14px}
+.tip{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.tip .q{font-weight:700;color:var(--rose)}.tip .a{font-size:.9rem}
+.next{background:var(--rose);color:#fff;border-radius:12px;padding:14px 16px}
+.next strong{font-family:var(--disp);display:block;font-size:1.05rem}
+.next em{font-style:normal;color:#fff3c4;font-weight:700}
+.dev{font-size:.8rem;color:var(--soft);background:var(--paper);border-radius:12px;padding:12px 14px}
+.dev summary{cursor:pointer}
+.err{color:var(--rose);font-size:.85rem;margin:-6px 0 0}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="app"></div>
+<script>
+const Q=[{"id": "name", "sec": "はじめに", "t": "text", "q": "LINEのお名前（ニックネーム）を教えてください", "note": "12月の3daysで、あなた専用の「ルート案内」をお渡しするときに使います", "req": true, "use": "Day1のルート案内と回答をつなぐ"}, {"id": "age", "sec": "お子さんについて", "t": "one", "q": "いちばん気になっているお子さん1人について答えてください。お子さんの年齢は？", "o": ["0〜1歳", "2〜3歳", "4〜5歳", "6〜7歳（小1〜小2）", "8歳以上"], "use": "判定の目安・絵本レベル・次の3冊"}, {"id": "sib", "sec": "お子さんについて", "t": "one", "q": "ごきょうだいはいますか？", "o": ["いない", "上にいる", "下にいる", "上にも下にもいる"], "use": "時間の作り方の対策"}, {"id": "like", "sec": "お子さんについて", "t": "multi", "q": "お子さんが好きなものは？（いくつでも）", "o": ["乗り物", "動物", "恐竜・虫・生きもの", "お姫様・ごっこ遊び", "体を動かす・スポーツ", "図鑑・しくみ", "おもしろい話・笑える話", "歌・ダンス", "絵を描く・工作"], "use": "次の3冊・興味を入口にした対策"}, {"id": "years", "sec": "これまでのおうち英語", "t": "one", "q": "おうち英語は何年目ですか？", "o": ["まだ始めていない", "始めたばかり（半年未満）", "半年〜1年", "1〜2年", "2〜3年", "3〜4年", "4年以上"], "use": "【判定】何から？／足ぶみ"}, {"id": "total", "sec": "これまでのおうち英語", "t": "one", "q": "これまでの英語の総時間は、だいたいどのくらい？", "note": "お休みしていた期間は除いて、ざっくりで大丈夫です", "o": ["300時間未満（毎日1時間なら1年弱）", "300〜1,000時間（毎日1時間なら1〜3年）", "1,000〜2,000時間（毎日2時間なら1年半〜3年）", "2,000時間以上", "分からない"], "use": "土台（2,500〜3,000時間）までの見通し"}, {"id": "daily", "sec": "今の取り組み・量", "t": "one", "q": "今、1日に英語にふれる時間は合計でどのくらい？", "note": "かけ流し・動画・絵本などをすべて合わせて", "o": ["ほとんどない", "15分未満", "15〜30分", "30分〜1時間", "1〜2時間", "2時間以上"], "use": "【判定】時間たりない／量の見直し"}, {"id": "freq", "sec": "今の取り組み・量", "t": "one", "q": "英語の時間は、どのくらい続けられていますか？", "o": ["ほぼ毎日", "週4〜5日", "週2〜3日", "週1日以下", "今はお休みしている"], "use": "【判定】時間たりない／継続の対策"}, {"id": "busy", "sec": "今の取り組み・量", "t": "multi", "q": "英語の時間が取りにくい理由は？（いくつでも）", "o": ["親が忙しい", "子どもが習い事・園・学校で忙しい", "きょうだいがいて手が回らない", "寝る前など、決まった時間が作れない", "何をすればいいか分からず手が止まる", "特にない"], "use": "時間の作り方の対策"}, {"id": "mix", "sec": "今の取り組み・中身", "t": "grid", "q": "それぞれ、1日どのくらいしていますか？", "rows": ["かけ流し", "英語絵本の読み聞かせ（ママ・パパが読む）", "英語の動画", "歌・英語遊び・語りかけ", "一人読み（子どもが自分で読む）"], "o": ["していない", "5分未満", "5〜15分", "15〜30分", "30分〜1時間", "1時間以上"], "use": "量のバランス・各取り組みの見直し"}, {"id": "online", "sec": "今の取り組み・中身", "t": "one", "q": "オンラインレッスン・英語教室は？", "o": ["していない", "週1回", "週2〜3回", "週4回以上"], "use": "アウトプットのタイミング"}, {"id": "kake", "sec": "今の取り組み・中身", "t": "one", "q": "かけ流しをしているとき、いちばん近いのは？", "o": ["かけ流しはしていない", "BGMのように流しっぱなし（聞いているかは分からない）", "読んだ絵本や見た動画の音を流している", "一緒に口ずさんだり、反応したりしている"], "use": "【判定】質の空回り／かけ流しの見直し"}, {"id": "read", "sec": "絵本の読み聞かせ", "t": "one", "q": "英語の絵本を読んでいるときの、お子さんの様子は？", "o": ["喜んで最後まで聞く", "日によって聞く", "途中で離れることが多い", "嫌がる・「日本語で読んで」と言う", "英語の読み聞かせは、まだあまりしていない"], "use": "【判定】質の空回り／足ぶみ"}, {"id": "under", "sec": "絵本の読み聞かせ", "t": "one", "q": "ママの英語の読み聞かせを、お子さんはどのくらい分かっていそう？", "o": ["絵を見なくても、お話の流れが分かっていそう", "絵を手がかりに、だいたい分かっていそう", "知っている単語やフレーズにだけ反応する", "聞いてはいるけれど、分かっているかは分からない", "読み聞かせは、まだあまりしていない"], "use": "【判定】質の空回り／絵本レベルの見直し"}, {"id": "jpread", "sec": "絵本の読み聞かせ", "t": "one", "q": "日本語の絵本は、どんなものを楽しんで聞いていますか？", "o": ["赤ちゃん絵本（音やくり返しを楽しむもの）", "短いお話（『はらぺこあおむし』くらい）", "ストーリーのある絵本（『ぐりとぐら』くらい）", "長めのお話・幼年童話（『エルマーのぼうけん』くらい）", "児童書を楽しんでいる", "日本語の読み聞かせはあまりしていない"], "use": "日本語と英語の絵本レベルの差・次の3冊"}, {"id": "same", "sec": "絵本の読み聞かせ", "t": "one", "q": "英語の絵本や教材は、どのくらい同じものが続いていますか？", "o": ["よく新しい絵本を足している", "数か月、同じものが中心", "半年以上、ほぼ同じものをくり返している", "まだそこまで続けていない"], "use": "【判定】足ぶみ／レベルアップの見直し"}, {"id": "choose", "sec": "教材・絵本選び", "t": "one", "q": "英語の絵本は、どうやって選んでいますか？", "o": ["まだ選んだことがない", "SNSやランキングで見たもの", "なんとなく・お店で目についたもの", "子どもが好きそうなテーマで", "子どもの英語のレベルを見て", "セット教材の絵本が中心"], "use": "【判定】何から？／選書の見直し"}, {"id": "tools", "sec": "教材・絵本選び", "t": "multi", "q": "使っている教材は？（いくつでも）", "o": ["英語の絵本（紙）", "電子書籍・読み聞かせアプリ", "かけ流し用の音源", "英語の動画", "歌・手遊び", "ワーク・フォニックス教材", "セット教材（DWE・サンリオ・しまじろう など）", "まだ何も使っていない"], "use": "教材の見直し"}, {"id": "video", "sec": "教材・絵本選び", "t": "one", "q": "英語の動画を見ているとき、お子さんは分かっていそう？", "o": ["英語の動画は見ていない", "音だけでも分かっていそう", "画面を見て、だいたい分かっていそう", "分かっているかは分からない（何となく見ている）"], "use": "【判定】質の空回り／動画の見直し"}, {"id": "jpvideo", "sec": "教材・絵本選び", "t": "one", "q": "日本語の動画は、1日どのくらい見ていますか？", "o": ["ほとんど見ない", "30分未満", "30分〜1時間", "1〜2時間", "2時間以上"], "use": "日本語と英語のバランス・動画の見直し"}, {"id": "talk", "sec": "ことば・文字", "t": "multi", "q": "お子さんの英語の発話は？（いくつでも）", "o": ["ほとんどない", "単語だけ言える", "覚えた歌を歌える", "決まったフレーズを言う（Thank you. / Look! など）", "絵本や動画のセリフをまねする", "絵本を暗唱できる", "自分から文で話す（I want juice. など）", "2往復以上の会話ができる"], "use": "【判定】足ぶみ／アウトプットのタイミング"}, {"id": "letter", "sec": "ことば・文字", "t": "one", "q": "英語の文字については、いちばん近いのは？", "o": ["まだ興味はない", "アルファベットに興味がある", "文字と音のつながりが分かってきた", "覚えた絵本を、文字を指でなぞりながら読むしぐさがある", "簡単な単語を読もうとする", "短い文を自分で読める", "絵本を一人で読める"], "use": "【判定】足ぶみ／フォニックス・一人読みのタイミング"}, {"id": "reading", "sec": "ことば・文字", "t": "one", "q": "文字読み（フォニックス・一人読み）の取り組みは？", "o": ["まだしていない", "ABCの歌やアルファベット遊びをしている", "フォニックス（文字と音）を始めた", "やさしい絵本で一人読みを始めた（ORTなど）", "一人読みが毎日の習慣になっている", "チャプターブックなど、長めの本を一人で読んでいる"], "use": "【判定】足ぶみ／フォニックス・一人読みの進め方"}, {"id": "mama", "sec": "ママの英語", "t": "one", "q": "英語の絵本を読むことについて、いちばん近いのは？", "o": ["英語は苦手で、絵本を読むのも不安", "赤ちゃん絵本や、短いくり返しの絵本なら読める", "音声を聞いて練習すれば読める", "ストーリーのある絵本も読める", "長めのお話や児童書も読める"], "use": "ママの読み聞かせレベル・次の3冊"}, {"id": "kakari", "sec": "ママの英語", "t": "one", "q": "英語での語りかけ（声かけ）は？", "o": ["していない・自信がない", "決まったひとことなら言える（Good job! など）", "日常の場面で、短い文で話しかけている", "英語で会話するように話しかけられる"], "use": "語りかけの見直し"}, {"id": "worry", "sec": "今の悩み", "t": "multi", "q": "当てはまる悩みを選んでください（いくつでも）", "o": [["何から始めたらいいか分からない", "何から"], ["教材や情報が多すぎて、選べない", "何から"], ["絵本の選び方が分からない", "何から"], ["親が忙しくて、英語の時間が取れない", "時間"], ["子どもが忙しくて、英語の時間が取れない", "時間"], ["きょうだいがいて、一人ひとりに時間をかけられない", "時間"], ["始めても、なかなか続かない", "時間"], ["子どもが英語を嫌がる・乗ってこない", "質"], ["日本語の絵本は喜ぶのに、英語だと聞かない", "質"], ["何年も続けているのに、英語を理解していなさそう", "質"], ["かけ流しや動画をしていても、聞いている感じがしない", "質"], ["分かっていそうなのに、英語がなかなか出てこない", "足ぶみ"], ["文字読みに進みたい・読みが進まない", "足ぶみ"], ["子どものレベルに、自分の英語が追いつかない", "足ぶみ"], ["この先どう進めればいいか分からない", "足ぶみ"]], "use": "【判定】メインの手がかり"}, {"id": "top", "sec": "今の悩み", "t": "pick", "q": "その中で、いちばん気になるものは？", "use": "【判定】いちばん重く見る"}, {"id": "books", "sec": "最後に", "t": "text", "q": "今よく読んでいる英語の絵本を教えてください（分かる範囲で・1〜3冊）", "req": false, "use": "次の3冊・絵本レベルの見直し"}, {"id": "free", "sec": "最後に", "t": "text", "q": "ほかに、トコに聞いてみたいことがあれば自由にどうぞ", "req": false, "use": "Day1のルート案内・お悩みライブのネタ"}];
+const T=[{"no": "01", "icon": "🧩", "name": "何から？迷子さん", "lead": "始めたいのに、何から手をつければいいか分からない", "aru": ["教材や情報が多すぎて、何を選べばいいか分からない", "SNSを見るほど「あれもこれも」と迷ってしまう", "始めてはみたけれど、これで合っているのか自信がない"], "why": "おうち英語でいちばん迷いやすいのは、<b>「どの教材がいいか」という“方法”から入ってしまうこと</b>です。<br>実は、おうち英語が軌道に乗るかどうかを最初に分けるのは、教材でも親の英語力でもありません。<b>「質・量・継続」</b>の3つをどう確保するか、そしてどこを目指して、どの順番で進むかです。", "future": "情報を集めるだけで時間が過ぎたり、合わない教材を買っては変えたりと、遠回りが続いてしまいます。気づいたときには「何年もやったのに…」となりやすいタイプです。", "chance": "始める前・始めたばかりの今は、いちばん伸びしろのある時期。最初に“軸”を決めておけば、遠回りせずにまっすぐ進めます。", "tips": [["おうち英語の差は、教材では決まりません。", "軌道に乗るかどうかは、親の英語力でも、教材でも、子どもの性格でもなく、「質・量・継続」を確保できるかどうか。高い教材を買う前に、まずここを決めることが近道です。"], ["最初の絵本は「子どもの好きなジャンル」で選ばない。", "始めたばかりの頃に大事なのは、①今の英語レベルに合っていること ②ママが楽しく読めること。好きなジャンルで選ぶのは、もう少し先で大丈夫です。"]]}, {"no": "02", "icon": "⏰", "name": "時間たりない迷子さん", "lead": "やることは分かっている。でも、時間が取れない・続かない", "aru": ["平日は絵本1冊がやっと。英語ゼロの日も多い", "習い事や園・学校で、子どもも忙しい", "きょうだいがいて、一人ひとりに時間をかけられない"], "why": "ことばは、<b>触れた時間に比例して育ちます</b>。学校英語は年間50時間前後。毎日1〜2時間なら、年間365〜700時間になります。<br>変化を感じ始めるのが<b>2,000時間</b>前後、英語を英語のまま理解する土台が安定してくるのは<b>2,500〜3,000時間</b>ほど。1日15分だと年間約90時間なので、土台ができるまで何十年もかかってしまう計算です。", "future": "土台ができる前に「やっぱり効果がない」と感じて、やめてしまいやすいタイプです。それまでの積み重ねも、続かなければ少しずつ消えていきます。", "chance": "時間は「増やす」ものではなく、「生活の中に作る」もの。忙しいご家庭ほど、組み込み方ひとつで大きく変わります。", "tips": [["「英語漬け」より「続けられる時間」。", "わが家も最初は1日4〜5時間の英語漬けでしたが、日本語に不安を感じ、1日1〜2時間に減らしました。それでも英語力は伸び続けています。時間を減らしたのではなく、質を見直したからです。"], ["小さい子は、覚えるのも早いけど、忘れるのも早い。", "幼児期の英語は、環境が続かなければ消えていきます。短期で一気にやるより、入学や習い事が増えても守れる時間を決めることが、いちばんの近道です。"]]}, {"no": "03", "icon": "🌀", "name": "質の空回り迷子さん", "lead": "時間はかけているのに、手応えがない", "aru": ["かけ流しはしているけれど、聞いている様子がない", "英語の絵本だと途中で離れる・「日本語で読んで」と言う", "何年も続けているのに、分かっているのか分からない"], "why": "おうち英語の「質」とは、発音のきれいさではありません。いちばん大事なのは、<b>子どもが理解できる形で、ことばが届いているかどうか</b>です。<br>分からない英語は、子どもにとってはBGMと同じ。どれだけ時間をかけても、<b>意味が分かる形で入らなければ、ことばとして積み上がりません</b>。", "future": "時間をかけているのに伸びない状態が続くと、親も子も英語の時間がつらくなり、「うちの子には向いていない」とあきらめてしまいやすいタイプです。", "chance": "すでに英語の時間を確保できているのは、大きな強みです。中身を整えるだけで、同じ時間がぐんと力に変わります。", "tips": [["やっているのに伸びない人ほど、かけ流しに頼っています。", "「たくさん流しておけば、そのうち分かるようになる」は幻想。意味の分からない音を長時間聞いても、脳は“ことば”として処理していません。"], ["いちばん質の高い英語は、ネイティブの音声ではありません。", "子どもにとって一番分かりやすく、まねしやすいのは、大好きなママが自分に向けて語りかけてくれることば。そして、絵本に反応しない・嫌がるときは、レベルが合っていないことが多いんです。"]]}, {"no": "04", "icon": "👣", "name": "足ぶみ迷子さん", "lead": "子どもは楽しんでいる。でも、レベルが上がらない", "aru": ["同じ絵本・同じ動画を、ずっとくり返している", "英語は好きなのに、なかなか話さない・読まない", "次に何をすればいいのか分からない"], "why": "おうち英語には<b>順番</b>があります。聞いて分かる耳を育てる → 読み聞かせの絵本のレベルを上げる → フォニックス・自力読み → 多読・オンラインレッスン。<br>子どもの成長と理解に合わせて、<b>絵本のレベルも、取り組みも、ママの読み聞かせも一段ずつ上げていく</b>必要があります。楽しいだけで同じ場所にとどまると、ことばの土台が広がりません。", "future": "小学生になってから「英語は好きだけど、読めない・使えない」となりやすいタイプです。気づいたときには、次に進むタイミングを逃していることも。", "chance": "「英語が好き」という、いちばん難しい土台はもうできています。次の段階に進むタイミングを見極めれば、一気に伸びるタイプです。", "tips": [["3,000時間は「ゴール」ではなく「土台」。", "土台ができて、はじめて英語を英語のまま理解し、自分で読み、学び続ける「自走力」がついてきます。その先も、成長に合わせて積み上げていく必要があります。"], ["ずっと幼児の絵本ばかりだと、子どももつまらなくなる。", "成長とともに、読む本もレベルも変えていくことが大切です。ただし急ぎすぎも禁物。わが家も、数字ばかり気にしてレベルを上げようとした時期を後悔しています。見極めるのは「上げるタイミング」です。"]]}];
+const TYPE_NO={何から:0,時間:1,質:2,足ぶみ:3};
+// 判定：4タイプのスコアを足し、いちばん高いタイプ（同点はレベルの低い方）
+function judge(a){
+  const s={何から:0,時間:0,質:0,足ぶみ:0};
+  const idx=(id,v)=>Q.find(q=>q.id===id).o.indexOf(v);
+  // 悩み
+  (a.worry||[]).forEach(w=>{const o=Q.find(q=>q.id==='worry').o.find(x=>x[0]===w); if(o) s[o[1]]+= (a.top===w?3:1);});
+  if(a.top && !(a.worry||[]).includes(a.top)){const o=Q.find(q=>q.id==='worry').o.find(x=>x[0]===a.top); if(o) s[o[1]]+=3;}
+  // 何から
+  const y=idx('years',a.years);
+  if(y===0) s.何から+=6; else if(y===1) s.何から+=4;
+  if(['まだ選んだことがない','なんとなく・お店で目についたもの','SNSやランキングで見たもの'].includes(a.choose)) s.何から+=1;
+  if((a.tools||[]).includes('まだ何も使っていない')) s.何から+=2;
+  // 時間
+  const d=idx('daily',a.daily);
+  // 土台ができている子（総時間2,000時間以上）は、時間が減っていても「量の不足」より「次の段階」の課題として見る
+  const built=idx('total',a.total)===3;
+  const f=idx('freq',a.freq);
+  if(built){
+    if(d===0) s.時間+=1;
+    if(f>=3) s.時間+=1;
+    s.足ぶみ+=2;
+  }else{
+    if(d<=1) s.時間+=3; else if(d===2) s.時間+=1;
+    if(f>=2) s.時間+=2;
+  }
+  // 質
+  const u=idx('under',a.under);
+  if(d>=3 && (u===2||u===3)) s.質+=2;
+  if(['途中で離れることが多い','嫌がる・「日本語で読んで」と言う'].includes(a.read)) s.質+=2;
+  if((a.kake||'').startsWith('BGM')) s.質+=1;
+  if((a.video||'').startsWith('分かっているかは')) s.質+=1;
+  // 足ぶみ
+  if(a.read==='喜んで最後まで聞く' && (u===0||u===1)) s.足ぶみ+=1;
+  const sm=idx('same',a.same);
+  if(sm===2) s.足ぶみ+=2; else if(sm===1) s.足ぶみ+=1;
+  const talk=a.talk||[]; const talkHi=talk.some(t=>/自分から文|2往復/.test(t));
+  if(y>=4 && !talkHi) s.足ぶみ+=1;
+  const l=idx('letter',a.letter);
+  if(l>=2 && l<=4) s.足ぶみ+=1;
+  // 文字に興味が出ているのに、文字読みの取り組みがまだ → 次の段階に進めていない
+  const rd=idx('reading',a.reading);
+  if(l>=3 && rd>=0 && rd<=1) s.足ぶみ+=1;
+  const order=['何から','時間','質','足ぶみ'];
+  let best=order[0]; order.forEach(k=>{if(s[k]>s[best]) best=k;});
+  return {type:best,score:s};
+}
+
+const app=document.getElementById('app');
+let i=-1; const A={};
+const label=o=>Array.isArray(o)?o[0]:o;
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function answered(q){
+  const v=A[q.id];
+  if(q.t==='text') return !q.req || (v&&v.trim());
+  if(q.t==='multi') return v&&v.length;
+  if(q.t==='grid') return v&&q.rows.every(r=>v[r]);
+  return !!v;
+}
+function intro(){
+  app.innerHTML=`<div class="card"><div class="sec">Read &amp; Talk　トコ</div>
+  <h1>わが家のおうち英語<br>迷子タイプ診断</h1>
+  <p>いま、おうち英語のどこでつまずいているのかを、4つのタイプで診断します。</p>
+  <ul class="aru"><li>🧩 何から？迷子さん</li><li>⏰ 時間たりない迷子さん</li><li>🌀 質の空回り迷子さん</li><li>👣 足ぶみ迷子さん</li></ul>
+  <p class="note" style="margin:0">全${Q.length}問・5分ほど。答え終わるとすぐ結果が出ます。いちばん気になっているお子さん1人について答えてください。</p>
+  <div class="nav"><button class="btn go" id="start">診断をはじめる</button></div></div>`;
+  document.getElementById('start').onclick=()=>{i=0;render()};
+}
+function render(){
+  const q=Q[i]; let body='';
+  if(q.t==='one'||q.t==='multi'){
+    const sel=A[q.id]||(q.t==='multi'?[]:'');
+    body=`<div class="opts">${q.o.map(o=>{const l=label(o);const on=q.t==='multi'?sel.includes(l):sel===l;return `<button class="opt" aria-pressed="${on}" data-v="${esc(l)}">${esc(l)}</button>`}).join('')}</div>`;
+  }else if(q.t==='pick'){
+    const opts=(A.worry||[]);
+    body=opts.length?`<div class="opts">${opts.map(l=>`<button class="opt" aria-pressed="${A.top===l}" data-v="${esc(l)}">${esc(l)}</button>`).join('')}</div>`:'<p class="note" style="margin:0">前の質問で悩みを選ばなかったので、このまま次へ進んでください。</p>';
+  }else if(q.t==='grid'){
+    const v=A[q.id]||{};
+    body=`<div class="grid">${q.rows.map((r,k)=>`<label for="g${k}">${esc(r)}<select id="g${k}" data-r="${esc(r)}"><option value="">選んでください</option>${q.o.map(o=>`<option ${v[r]===o?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`).join('')}</div>`;
+  }else{
+    body=q.id==='name'?`<input id="t" value="${esc(A[q.id]||'')}" autocomplete="nickname">`:`<textarea id="t">${esc(A[q.id]||'')}</textarea>`;
+  }
+  const pct=Math.round(i/Q.length*100);
+  app.innerHTML=`<div class="card"><div class="top"><span class="sec">${esc(q.sec)}</span><span>${i+1} / ${Q.length}</span></div><div class="bar"><i style="width:${pct}%"></i></div>
+  <h2>${esc(q.q)}</h2>${q.note?`<p class="note">${esc(q.note)}</p>`:''}${q.t==='multi'?'<p class="note">いくつでも選べます</p>':''}
+  ${body}<div class="nav"><button class="btn back" id="back">戻る</button><button class="btn go" id="go">${i===Q.length-1?'結果を見る':'次へ'}</button></div></div>`;
+  const go=document.getElementById('go');
+  const upd=()=>{go.disabled=!(answered(q)||(q.t==='pick'&&!(A.worry||[]).length))};
+  app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    const v=b.dataset.v;
+    if(q.t==='multi'){let s=A[q.id]||[];
+      if(v==='特にない'||v==='まだ何も使っていない'||v==='ほとんどない'){s=s.includes(v)?[]:[v]} else {s=s.filter(x=>!['特にない','まだ何も使っていない','ほとんどない'].includes(x)); s=s.includes(v)?s.filter(x=>x!==v):[...s,v]}
+      A[q.id]=s; app.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',s.includes(x.dataset.v)));
+    }else{A[q.id]=v; app.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));}
+    if(q.id==='worry'&&A.top&&!(A.worry||[]).includes(A.top)) delete A.top;
+    upd();
+  });
+  app.querySelectorAll('select').forEach(s=>s.onchange=()=>{A[q.id]=A[q.id]||{};A[q.id][s.dataset.r]=s.value;upd()});
+  const t=document.getElementById('t'); if(t) t.oninput=()=>{A[q.id]=t.value;upd()};
+  document.getElementById('back').onclick=()=>{if(i===0){intro()}else{i--;render()}};
+  go.onclick=()=>{
+    if(q.t==='pick'&&(A.worry||[]).length===1&&!A.top) A.top=A.worry[0];
+    if(i<Q.length-1){
+      i++;
+      if(Q[i].t==='pick'&&(A.worry||[]).length===1){A.top=A.worry[0];i++;}
+      render();
+    } else result();
+  };
+  upd(); window.scrollTo(0,0);
+}
+function result(){
+  const r=judge(A); const t=T[TYPE_NO[r.type]];
+  const rec={...A,type:t.name,score:r.score,answeredAt:new Date().toISOString()};
+  // 本番では、ここで回答を保存先（Googleスプレッドシートなど）へ送る
+  app.innerHTML=`<div class="card"><div class="sec">${esc(A.name||'')}さんの診断結果</div><p class="note" style="margin:0">あなたのおうち英語は…</p>
+  <h1>${t.icon} ${t.name}</h1><p class="lead">${t.lead}</p>
+  <ul class="aru">${t.aru.map(a=>`<li>${a}</li>`).join('')}</ul>
+  <h3>なぜ、このままだと伸びにくいの？</h3><p>${t.why}</p>
+  <h3>このままだと…</h3><p>${t.future}</p>
+  <h3>でも、ここがチャンス！</h3><p class="chance">${t.chance}</p>
+  <div class="tip"><h3 style="margin:0">💡 トコのひとことアドバイス</h3>${t.tips.map(([q,a])=>`<div><div class="q">${q}</div><div class="a">${a}</div></div>`).join('')}</div>
+  <div class="next"><strong>わが家に合った対策は、12月の3daysで🎁</strong>あなたの回答をもとに、何をどう変えればいいかをまとめた<em>「わが家のルート案内」</em>を、3daysライブDay1でお渡しします。</div>
+  <div class="nav"><button class="btn back" id="again">もう一度診断する</button></div></div>
+  <details class="dev"><summary>確認用：判定の点数と回答（本番では表示しません）</summary><pre style="white-space:pre-wrap;font-size:.75rem">${esc(JSON.stringify(rec,null,1))}</pre></details>`;
+  document.getElementById('again').onclick=()=>{for(const k in A) delete A[k];intro()};
+  window.scrollTo(0,0);
+}
+intro();
+</script>
+
+</body>
+</html>
